@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">LabaAndruid1</string>
+    <string name="kabinet">Личный кабинет</string>
+    <string name="tarif_quote">Тариф «Улыбка (бесплатный)»</string>
+</resources>
