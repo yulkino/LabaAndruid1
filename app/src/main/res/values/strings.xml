@@ -2,4 +2,6 @@
     <string name="app_name">LabaAndruid1</string>
     <string name="kabinet">Личный кабинет</string>
     <string name="tarif_quote">Тариф «Улыбка (бесплатный)»</string>
+    <string name="nextPay">К оплате за сентябрь %.2fР</string>
+    <string name="ls">ЛС: %s</string>
 </resources>
