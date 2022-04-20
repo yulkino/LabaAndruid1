@@ -25,6 +25,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: Adapter
     private lateinit var binding: ActivityMainBinding
 
+    private var isUserLoaded = false
+        private set(value) {
+            field = value
+            checkLoading()
+        }
+    private var isTariffLoaded = false
+        private set(value) {
+            field = value
+            checkLoading()
+        }
+    private var isBalanceLoaded = false
+        private set(value) {
+            field = value
+            checkLoading()
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -35,64 +51,42 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun load(){
-        MainScope().launch {
-            binding.loading.isVisible = true
-            val tariffsCallback = object: Callback<List<Tariff>> {
-                override fun onResponse(call: Call<List<Tariff>>, response: Response<List<Tariff>>) {
-                    val tariffs = response.body() ?: onFailure(call, Exception("body is null"))
-                    val items = (tariffs as List<Tariff>).map(::mapTariffToItem)
-                    setTariffs(items)
-                    binding.loading.isVisible = false
-                }
+        MainScope().launch { loadUserInfo() }
+        MainScope().launch { loadTariff() }
+        MainScope().launch { loadBalance() }
+    }
 
-                override fun onFailure(call: Call<List<Tariff>>, t: Throwable) {
-                    Toast.makeText(this@MainActivity, "Bad internet connection", Toast.LENGTH_LONG).show()
-                    binding.loading.isVisible = false
-                }
-            }
-
-            val balanceCallback = object: Callback<List<Balance>> {
-                override fun onResponse(
-                    call: Call<List<Balance>>,
-                    response: Response<List<Balance>>,
-                ) {
-                    val balance = response.body()?.get(0) ?: onFailure(call, Exception())
-                    val casted = balance as Balance
-                    with(binding) {
-                        pay.text = casted.balance.toString()
-                        nextPay.text = getString(R.string.nextPay).format(casted.nextPay)
-                        ls.text = getString(R.string.ls).format(casted.accNum)
-                        loading.isVisible = false
-                    }
-                }
-
-                override fun onFailure(call: Call<List<Balance>>, t: Throwable) {
-                    Toast.makeText(this@MainActivity, "Bad internet connection", Toast.LENGTH_LONG).show()
-                    binding.loading.isVisible = false
-                }
-            }
-
-            val userCallback = object: Callback<List<UserInfo>> {
-                override fun onResponse(call: Call<List<UserInfo>>, response: Response<List<UserInfo>>) {
-                    val user = response.body()?.get(0) ?: onFailure(call, Exception())
-                    val casted = (user as UserInfo)
-                    with(binding) {
-                        fio.text = "${casted.firstName} ${casted.lastName}"
-                        address.text = user.address
-                        loading.isVisible = false
-                    }
-                }
-
-                override fun onFailure(call: Call<List<UserInfo>>, t: Throwable) {
-                    Toast.makeText(this@MainActivity, "Bad internet connection", Toast.LENGTH_LONG).show()
-                    binding.loading.isVisible = false
-                }
-            }
-
-            api.getTariffs().enqueue(tariffsCallback)
-            api.getBalance().enqueue(balanceCallback)
-            api.getUserInfo().enqueue(userCallback)
+    private suspend fun loadBalance() {
+        isBalanceLoaded = false
+        val balance = api.getBalance()[0]
+        with(binding){
+            ls.text = "ЛС: ${balance.accNum.toString()}"
+            pay.text = balance.balance.toString()
+            nextPay.text = "К оплате за сентябрь ${balance.nextPay}"
+            isBalanceLoaded = true
         }
+    }
+
+    private suspend fun loadTariff() {
+        isTariffLoaded = false
+        val tariff = api.getTariffs()
+        setTariffs(tariff.map(::mapTariffToItem))
+        isTariffLoaded = true
+    }
+
+    private suspend fun loadUserInfo(){
+        isUserLoaded = false
+        val user = api.getUserInfo()[0]
+        with(binding){
+            fio.text = "${user.firstName} ${user.lastName}"
+            address.text = user.address
+            isUserLoaded = true
+        }
+    }
+
+    private fun checkLoading() {
+        val loadingDone = isUserLoaded && isTariffLoaded && isBalanceLoaded
+        binding.loading.isVisible = !loadingDone
     }
 
     private fun mapTariffToItem(tariff: Tariff) =
