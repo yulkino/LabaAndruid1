@@ -1,9 +1,8 @@
-package com.example.labaandruid1.network.retrofit
+package com.example.network.retrofit
 
-import com.example.labaandruid1.network.models.Balance
-import com.example.labaandruid1.network.models.Tariff
-import com.example.labaandruid1.network.models.UserInfo
-import retrofit2.Call
+import com.example.domain.models.Balance
+import com.example.domain.models.Tariff
+import com.example.domain.models.UserInfo
 import retrofit2.http.GET
 
 interface IApi {
