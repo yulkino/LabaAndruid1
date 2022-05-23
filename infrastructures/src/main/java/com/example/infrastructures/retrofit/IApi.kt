@@ -1,4 +1,4 @@
-package com.example.network.retrofit
+package com.example.infrastructures.retrofit
 
 import com.example.domain.models.Balance
 import com.example.domain.models.Tariff

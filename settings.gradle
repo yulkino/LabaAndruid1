@@ -15,4 +15,5 @@ dependencyResolutionManagement {
 rootProject.name = "LabaAndruid1"
 include ':app'
 include ':domain'
-include ':infrastructure'
+include ':infr'
+include ':infrastructures'

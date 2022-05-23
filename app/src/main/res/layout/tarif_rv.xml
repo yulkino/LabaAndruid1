@@ -6,6 +6,17 @@
     app:cardCornerRadius="24dp"
     android:layout_margin="4dp">
 
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:backgroundTint="#ddd"
+        android:elevation="120dp"
+        android:textColor="@color/black"
+        android:layout_gravity="end|top"
+        android:text="╳"
+        android:textStyle="bold"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

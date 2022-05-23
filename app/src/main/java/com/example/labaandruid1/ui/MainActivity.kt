@@ -9,16 +9,10 @@ import com.example.labaandruid1.R
 import com.example.labaandruid1.databinding.ActivityMainBinding
 import com.example.domain.models.Tariff
 import com.example.labaandruid1.App
+import com.example.labaandruid1.di.factory
 import com.example.labaandruid1.viewModule.AbstractMainViewModule
-import com.example.labaandruid1.viewModule.ViewModelFactory
-import com.example.network.retrofit.ApiProvider
-import com.example.network.retrofit.RetrofitClient
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
-    @Inject lateinit var factory: ViewModelFactory
 
     private lateinit var adapter: Adapter
     private lateinit var binding: ActivityMainBinding
@@ -29,7 +23,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        inject()
         setBinding()
         setAdapter()
         subscribe()
@@ -44,16 +37,16 @@ class MainActivity : AppCompatActivity() {
         viewModule.isLoading.observe(this){
             binding.loading.isVisible = it
         }
-        viewModule.tariff.observe(this){ list ->
+        viewModule.tariffData.observe(this){ list ->
             setTariffs(list.map {item -> mapTariffToItem(item) })
         }
-        viewModule.userInfo.observe(this){
+        viewModule.userInfoData.observe(this){
             with(binding){
                 fio.text = "${it.firstName} ${it.lastName}"
                 address.text = it.address
             }
         }
-        viewModule.balance.observe(this){
+        viewModule.balanceData.observe(this){
             with(binding){
                 ls.text = "ЛС: ${it.accNum.toString()}"
                 pay.text = it.balance.toString()
@@ -62,15 +55,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun inject() {
-        App.appComponent.inject(this)
-    }
-
     private fun mapTariffToItem(tariff: Tariff) =
         Item(
             title = tariff.title,
             subtitle = tariff.desc,
             price = tariff.cost,
+            onDelete = { viewModule.delete(tariff) },
         )
 
     private fun setTariffs(list: List<Item>) {
